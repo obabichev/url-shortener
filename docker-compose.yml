@@ -4,11 +4,17 @@ services:
   url-shortener-backend:
     build:
       context: url-shortener-backend
+      target: development
     depends_on:
       - db
     restart: always
+    command: ./gradlew --project-cache-dir /tmp/gradle-cache bootRun
     ports:
       - 8080:8080
+    volumes:
+      - ./url-shortener-backend:/app
+    environment:
+      SHORT_URL_PREFIX: "http://localhost:8080/su"
   db:
     image: mongo:4.2.2
     restart: always

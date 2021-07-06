@@ -6,5 +6,8 @@ import org.springframework.data.mongodb.repository.MongoRepository
 
 interface ShortUrlRepository : MongoRepository<ShortUrl, String> {
     fun findOneById(id: ObjectId): ShortUrl
+
+    fun findOneByShortUrl(shortUrl: String): ShortUrl
+
     override fun deleteAll()
 }
