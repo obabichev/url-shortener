@@ -4,11 +4,9 @@ import com.obabichevurlshortener.urlshortenerbackend.dto.CreateShortUrlRequest
 import com.obabichevurlshortener.urlshortenerbackend.entity.ShortUrl
 import com.obabichevurlshortener.urlshortenerbackend.repository.ShortUrlRepository
 import com.obabichevurlshortener.urlshortenerbackend.utils.Base62
-import com.obabichevurlshortener.urlshortenerbackend.zoo.RangeProvider
+import com.obabichevurlshortener.urlshortenerbackend.zoo.UrlIndexProvider
 import java.time.LocalDateTime
 import javax.servlet.http.HttpServletResponse
-import kotlin.math.abs
-import kotlin.random.Random
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -22,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 class UrlShortenerController(
     private val shortUrlRepository: ShortUrlRepository,
     private val shortUrlService: ShortUrlService,
-    private val rangeProvider: RangeProvider
+    private val urlIndexProvider: UrlIndexProvider
 ) {
 
     var logger: Logger = LoggerFactory.getLogger(UrlShortenerController::class.java)
@@ -36,13 +34,12 @@ class UrlShortenerController(
     @PostMapping("/short-url")
     fun createShortUrl(@RequestBody body: CreateShortUrlRequest): ResponseEntity<ShortUrl> {
 
-        val nextId = rangeProvider.getNext()
-        logger.info("[DEV] next id: $nextId")
+        val nextId = urlIndexProvider.getNext()
 
         val shortUrl = shortUrlRepository.save(
             ShortUrl(
                 longUrl = body.longUrl,
-                shortUrl = shortUrlService.shortUrlByKey(Base62.encodeBase10(abs(Random.nextLong()))),
+                shortUrl = shortUrlService.shortUrlByKey(Base62.encodeBase10(nextId)),
                 expiresAt = LocalDateTime.now().plusMonths(12)
             )
         )

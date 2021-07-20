@@ -9,5 +9,5 @@ class UrlShortenerConfig(
     var shortUrlPrefix: String = "",
     var zooHost: String = "",
     var zooRangeNode: String = "",
-    var zooRangeSize: Int = 0
+    var zooRangeSize: Long = 0
 )

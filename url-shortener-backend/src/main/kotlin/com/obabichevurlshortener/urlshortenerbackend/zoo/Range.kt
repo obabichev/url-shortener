@@ -3,8 +3,8 @@ package com.obabichevurlshortener.urlshortenerbackend.zoo
 import java.lang.RuntimeException
 
 class Range(
-    start: Int,
-    private val end: Int
+    start: Long,
+    private val end: Long
 ) {
     var current = start
 
@@ -12,7 +12,7 @@ class Range(
         return current == end
     }
 
-    fun getNext(): Int {
+    fun getNext(): Long {
         if (isFinished()) {
             throw RuntimeException("Range has been already finished")
         }
