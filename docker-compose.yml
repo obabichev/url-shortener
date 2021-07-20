@@ -14,7 +14,11 @@ services:
     volumes:
       - ./url-shortener-backend:/app
     environment:
+      MONGO_DB_URI: "mongodb://root:rootpassword@db/url-shortener?authSource=admin"
       SHORT_URL_PREFIX: "http://localhost:8080/su"
+      ZOO_HOST: "zoo:2181"
+      ZOO_RANGE_NODE: "/range"
+      ZOO_RANGE_SIZE: 10
   db:
     image: mongo:4.2.2
     restart: always

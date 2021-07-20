@@ -1,17 +1,22 @@
 package com.obabichevurlshortener.urlshortenerbackend.zoo
 
+import com.obabichevurlshortener.urlshortenerbackend.UrlShortenerConfig
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.framework.recipes.shared.SharedCount
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
-const val RANGE_SIZE = 10
-
 @Component
 class RangeProvider {
+
+    @Autowired
+    @Qualifier("UrlShortenerConfig")
+    lateinit var config: UrlShortenerConfig
 
     lateinit var client: CuratorFramework
     var range: Range? = null
@@ -20,15 +25,18 @@ class RangeProvider {
 
     @PostConstruct
     fun init() {
+        logger.info(
+            "Init RangeProvider with parameters host: ${config.zooHost}, rangeSize: ${config.zooRangeSize}, rangeNode: ${config.zooRangeNode}"
+        )
         client = CuratorFrameworkFactory.newClient(
-            "zoo:2181",
+            config.zooHost,
             ExponentialBackoffRetry(1000, 3)
         )
         client.start()
     }
 
     fun getNextRange(): Range {
-        val counter = SharedCount(client, "/range", 0)
+        val counter = SharedCount(client, config.zooRangeNode, 0)
 
         var value = counter.versionedValue
         try {
@@ -37,8 +45,8 @@ class RangeProvider {
                 value = counter.versionedValue
             }
 
-            val start = value.value * RANGE_SIZE
-            val end = start + RANGE_SIZE
+            val start = value.value * config.zooRangeSize
+            val end = start + config.zooRangeSize
             logger.info("Range from ZooKeeper was obtained: ($start, $end)")
             counter.close()
             return Range(start, end)
